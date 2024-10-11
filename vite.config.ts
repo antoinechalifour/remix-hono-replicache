@@ -1,6 +1,9 @@
+import devServer, { defaultOptions } from "@hono/vite-dev-server";
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import adapter from "@hono/vite-dev-server/node";
+import build from "@hono/vite-build/node";
 
 export default defineConfig({
   plugins: [
@@ -12,5 +15,14 @@ export default defineConfig({
       },
     }),
     tsconfigPaths(),
+    devServer({
+      adapter,
+      entry: "src/main.ts",
+      exclude: [...defaultOptions.exclude, "/public/**", "/app/**"],
+      injectClientScript: false,
+    }),
+    build({
+      entry: "src/main.ts",
+    }),
   ],
 });
