@@ -21,8 +21,5 @@ export default defineConfig({
       exclude: [...defaultOptions.exclude, "/public/**", "/app/**"],
       injectClientScript: false,
     }),
-    build({
-      entry: "src/main.ts",
-    }),
   ],
 });
