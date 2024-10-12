@@ -1,5 +1,18 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { ClientOnly } from "../components/ClientOnly";
+import { createContext, PropsWithChildren, useContext, useMemo } from "react";
+import { useLoaderData } from "@remix-run/react";
+import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
+import { useSubscribe } from "replicache-react";
+
+declare module "@remix-run/server-runtime" {
+  export interface AppLoadContext {
+    user: {
+      id: string;
+      name: string;
+    };
+  }
+}
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,51 +21,140 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader = (args: LoaderFunctionArgs) => {
+  return { user: args.context.user };
+};
+
+type Todo = {
+  id: string;
+  title: string;
+  done: boolean;
+};
+
+const raise = (message: string) => {
+  throw new Error(message);
+};
+
+const getTodo = async (tx: WriteTransaction, id: string): Promise<Todo> => {
+  let todo = await tx.get<Todo>(`todo/${id}`);
+  return todo ?? raise(`Todo not found ${id}`);
+};
+
+const saveTodo = async (tx: WriteTransaction, todo: Todo) => {
+  await tx.set(`todo/${todo.id}`, todo);
+};
+
+const deleteTodo = async (tx: WriteTransaction, id: string) => {
+  return tx.del(`todo/${id}`);
+};
+
+let MUTATORS = {
+  async create(tx: WriteTransaction, input: { title: string }) {
+    await saveTodo(tx, {
+      id: crypto.randomUUID(),
+      title: input.title,
+      done: false,
+    });
+  },
+  async delete(tx: WriteTransaction, input: { id: string }) {
+    await deleteTodo(tx, input.id);
+  },
+  async check(tx: WriteTransaction, input: { id: string }) {
+    const todo = await getTodo(tx, input.id);
+    await saveTodo(tx, {
+      ...todo,
+      done: true,
+    });
+  },
+  async uncheck(tx: WriteTransaction, input: { id: string }) {
+    const todo = await getTodo(tx, input.id);
+    await saveTodo(tx, {
+      ...todo,
+      done: false,
+    });
+  },
+};
+
+const replicacheContext = createContext<Replicache<typeof MUTATORS> | null>(
+  null,
+);
+const useReplicache = () =>
+  useContext(replicacheContext) ?? raise("Missing provider");
+
+const App = ({ children }: PropsWithChildren) => {
+  const { user } = useLoaderData<typeof loader>();
+  const replicache = useMemo(() => {
+    return new Replicache({
+      name: user.id,
+      licenseKey: TEST_LICENSE_KEY,
+      mutators: MUTATORS,
+      // pushURL: "/replicache/push",
+    });
+  }, [user]);
+
+  return (
+    <replicacheContext.Provider value={replicache}>
+      {children}
+    </replicacheContext.Provider>
+  );
+};
+
+const TodoList = () => {
+  const replicache = useReplicache();
+  const todos = useSubscribe(
+    replicache,
+    (tx) => tx.scan<Todo>({ prefix: "todo/" }).values().toArray(),
+    { default: [] },
+  );
+
+  return (
+    <div>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            {todo.title}
+
+            <input
+              type="checkbox"
+              defaultChecked={todo.done}
+              onChange={(e) => {
+                if (e.currentTarget.checked)
+                  replicache.mutate.check({ id: todo.id });
+                else replicache.mutate.uncheck({ id: todo.id });
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => replicache.mutate.delete({ id: todo.id })}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          replicache.mutate.create({ title: formData.get("todo") as string });
+        }}
+      >
+        <input name="todo" type="text" placeholder="New todo..." />
+        <button type="submit">Add</button>
+      </form>
+    </div>
+  );
+};
+
 export default function Index() {
   return (
     <ClientOnly>
       {() => (
-        <div className="flex h-screen items-center justify-center">
-          <div className="flex flex-col items-center gap-16">
-            <header className="flex flex-col items-center gap-9">
-              <h1 className="leading text-2xl font-bold text-gray-800 dark:text-gray-100">
-                Welcome to <span className="sr-only">Remix</span>
-              </h1>
-              <div className="h-[144px] w-[434px]">
-                <img
-                  src="/logo-light.png"
-                  alt="Remix"
-                  className="block w-full dark:hidden"
-                />
-                <img
-                  src="/logo-dark.png"
-                  alt="Remix"
-                  className="hidden w-full dark:block"
-                />
-              </div>
-            </header>
-            <nav className="flex flex-col items-center justify-center gap-4 rounded-3xl border border-gray-200 p-6 dark:border-gray-700">
-              <p className="leading-6 text-gray-700 dark:text-gray-200">
-                What&apos;s next?
-              </p>
-              <ul>
-                {resources.map(({ href, text, icon }) => (
-                  <li key={href}>
-                    <a
-                      className="group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500"
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {icon}
-                      {text}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
+        <App>
+          <TodoList />
+        </App>
       )}
     </ClientOnly>
   );
