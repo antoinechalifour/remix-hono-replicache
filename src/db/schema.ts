@@ -22,4 +22,5 @@ export const todosTable = pgTable("todos", {
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
   deletedAt: timestamp(),
+  version: integer().default(1),
 });
