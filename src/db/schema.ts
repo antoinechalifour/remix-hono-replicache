@@ -1,4 +1,11 @@
-import { boolean, integer, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  pgTable,
+  timestamp,
+  uuid,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const usersTable = pgTable("users", {
   id: uuid().primaryKey(),
@@ -7,9 +14,12 @@ export const usersTable = pgTable("users", {
   email: varchar({ length: 255 }).notNull().unique(),
 });
 
-// export const todosTable = pgTable("todos", {
-//   id: uuid().primaryKey(),
-//   title: varchar().notNull(),
-//   done: boolean().default(false),
-//   userId:,
-// });
+export const todosTable = pgTable("todos", {
+  id: uuid().primaryKey(),
+  title: varchar().notNull(),
+  done: boolean().default(false),
+  userId: uuid()
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .notNull(),
+  deletedAt: timestamp(),
+});
