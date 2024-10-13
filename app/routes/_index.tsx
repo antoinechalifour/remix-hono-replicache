@@ -1,9 +1,14 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { ClientOnly } from "../components/ClientOnly";
-import { createContext, PropsWithChildren, useContext, useMemo } from "react";
+import { PropsWithChildren } from "react";
 import { ClientLoaderFunctionArgs, useLoaderData } from "@remix-run/react";
-import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
+import { getReplicache } from "../app-replicache";
 import { useSubscribe } from "replicache-react";
+import { getTodos } from "../model/Todo";
+import {
+  ReplicacheProvider,
+  useReplicache,
+} from "../components/ReplicacheProvider";
 
 declare module "@remix-run/server-runtime" {
   export interface AppLoadContext {
@@ -28,105 +33,22 @@ export const loader = (args: LoaderFunctionArgs) => {
 export const clientLoader = async (args: ClientLoaderFunctionArgs) => {
   const loaderData = await args.serverLoader<typeof loader>();
   const replicache = getReplicache(loaderData.user.id);
-  const defaultTodos = await replicache.query((tx) =>
-    tx.scan<Todo>({ prefix: "todos/" }).values().toArray(),
-  );
+  const defaultTodos = await replicache.query(getTodos);
   return { ...loaderData, defaultTodos };
 };
 
 clientLoader.hydrate = true;
 
-type Todo = {
-  id: string;
-  title: string;
-  done: boolean;
-};
-
-const raise = (message: string) => {
-  throw new Error(message);
-};
-
-const getTodo = async (tx: WriteTransaction, id: string): Promise<Todo> => {
-  const todo = await tx.get<Todo>(`todos/${id}`);
-  return todo ?? raise(`Todo not found ${id}`);
-};
-
-const saveTodo = async (tx: WriteTransaction, todo: Todo) => {
-  await tx.set(`todos/${todo.id}`, todo);
-};
-
-const deleteTodo = async (tx: WriteTransaction, id: string) => {
-  return tx.del(`todos/${id}`);
-};
-
-const MUTATORS = {
-  async create(tx: WriteTransaction, input: { id: string; title: string }) {
-    await saveTodo(tx, {
-      id: input.id,
-      title: input.title,
-      done: false,
-    });
-  },
-  async delete(tx: WriteTransaction, input: { id: string }) {
-    await deleteTodo(tx, input.id);
-  },
-  async check(tx: WriteTransaction, input: { id: string }) {
-    const todo = await getTodo(tx, input.id);
-    await saveTodo(tx, {
-      ...todo,
-      done: true,
-    });
-  },
-  async uncheck(tx: WriteTransaction, input: { id: string }) {
-    const todo = await getTodo(tx, input.id);
-    await saveTodo(tx, {
-      ...todo,
-      done: false,
-    });
-  },
-};
-
-const replicacheContext = createContext<Replicache<typeof MUTATORS> | null>(
-  null,
-);
-const useReplicache = () =>
-  useContext(replicacheContext) ?? raise("Missing provider");
-
-const cache = new Map<string, Replicache<typeof MUTATORS>>();
-
-const getReplicache = (userId: string) => {
-  const fromCache = cache.get(userId);
-  if (fromCache != null) return fromCache;
-  const fresh = new Replicache({
-    name: userId,
-    licenseKey: TEST_LICENSE_KEY,
-    mutators: MUTATORS,
-    pullURL: "/replicache/pull",
-    pushURL: "/replicache/push",
-  });
-  cache.set(userId, fresh);
-  return fresh;
-};
-
 const App = ({ children }: PropsWithChildren) => {
   const { user } = useLoaderData<typeof clientLoader>();
-  const replicache = useMemo(() => getReplicache(user.id), [user.id]);
 
-  return (
-    <replicacheContext.Provider value={replicache}>
-      {children}
-    </replicacheContext.Provider>
-  );
+  return <ReplicacheProvider userId={user.id}>{children}</ReplicacheProvider>;
 };
 
 const TodoList = () => {
   const replicache = useReplicache();
   const { defaultTodos } = useLoaderData<typeof clientLoader>();
-  const todos = useSubscribe(
-    replicache,
-    (tx) => tx.scan<Todo>({ prefix: "todos/" }).values().toArray(),
-    { default: defaultTodos },
-  );
+  const todos = useSubscribe(replicache, getTodos, { default: defaultTodos });
   console.log("default:", defaultTodos, "todos", todos);
 
   return (
