@@ -9,6 +9,8 @@ import {
   ReplicacheProvider,
   useReplicache,
 } from "../components/ReplicacheProvider";
+import { BubbleMenu, EditorProvider, FloatingMenu } from "@tiptap/react";
+import { StarterKit } from "@tiptap/starter-kit";
 
 declare module "@remix-run/server-runtime" {
   export interface AppLoadContext {
@@ -45,6 +47,26 @@ const App = ({ children }: PropsWithChildren) => {
   return <ReplicacheProvider userId={user.id}>{children}</ReplicacheProvider>;
 };
 
+const extensions = [StarterKit];
+
+const content = "<p>Hello World!</p>";
+
+const TipTap = () => {
+  return (
+    <EditorProvider
+      onUpdate={(e) => console.log(e.editor.getJSON())}
+      extensions={extensions}
+      content={content}
+      editorProps={{
+        attributes: {
+          class:
+            "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none",
+        },
+      }}
+    ></EditorProvider>
+  );
+};
+
 const TodoList = () => {
   const replicache = useReplicache();
   const { defaultTodos } = useLoaderData<typeof clientLoader>();
@@ -53,6 +75,7 @@ const TodoList = () => {
 
   return (
     <div>
+      <TipTap />
       <ul>
         {todos.map((todo) => (
           <li key={todo.id}>
