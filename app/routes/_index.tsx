@@ -1,7 +1,7 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { ClientOnly } from "../components/ClientOnly";
 import { createContext, PropsWithChildren, useContext, useMemo } from "react";
-import { useLoaderData } from "@remix-run/react";
+import { ClientLoaderFunctionArgs, useLoaderData } from "@remix-run/react";
 import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
 import { useSubscribe } from "replicache-react";
 
@@ -24,6 +24,17 @@ export const meta: MetaFunction = () => {
 export const loader = (args: LoaderFunctionArgs) => {
   return { user: args.context.user };
 };
+
+export const clientLoader = async (args: ClientLoaderFunctionArgs) => {
+  const loaderData = await args.serverLoader<typeof loader>();
+  const replicache = getReplicache(loaderData.user.id);
+  const defaultTodos = await replicache.query((tx) =>
+    tx.scan<Todo>({ prefix: "todos/" }).values().toArray(),
+  );
+  return { ...loaderData, defaultTodos };
+};
+
+clientLoader.hydrate = true;
 
 type Todo = {
   id: string;
@@ -98,7 +109,7 @@ const getReplicache = (userId: string) => {
 };
 
 const App = ({ children }: PropsWithChildren) => {
-  const { user } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<typeof clientLoader>();
   const replicache = useMemo(() => getReplicache(user.id), [user.id]);
 
   return (
@@ -110,11 +121,13 @@ const App = ({ children }: PropsWithChildren) => {
 
 const TodoList = () => {
   const replicache = useReplicache();
+  const { defaultTodos } = useLoaderData<typeof clientLoader>();
   const todos = useSubscribe(
     replicache,
     (tx) => tx.scan<Todo>({ prefix: "todos/" }).values().toArray(),
-    { default: [] },
+    { default: defaultTodos },
   );
+  console.log("default:", defaultTodos, "todos", todos);
 
   return (
     <div>
@@ -170,4 +183,8 @@ export default function Index() {
       )}
     </ClientOnly>
   );
+}
+
+export function HydrateFallback() {
+  return null;
 }
