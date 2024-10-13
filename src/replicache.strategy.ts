@@ -103,13 +103,13 @@ const processMutation = (
 
 export const mutate = (tx: Transaction, userID: string, mutation: Mutation) => {
   switch (mutation.name) {
-    case "create":
+    case "createTodo":
       return createTodo(tx, userID, createTodoSchema.parse(mutation.args));
-    case "delete":
+    case "deleteTodo":
       return deleteTodo(tx, userID, deleteTodoSchema.parse(mutation.args));
-    case "check":
+    case "checkTodo":
       return checkTodo(tx, userID, checkTodoSchema.parse(mutation.args));
-    case "uncheck":
+    case "uncheckTodo":
       return uncheckTodo(tx, userID, uncheckTodoSchema.parse(mutation.args));
     default:
       console.error("Unhandled mutation", mutation);

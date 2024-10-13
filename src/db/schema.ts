@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   pgTable,
   timestamp,
   uuid,
@@ -12,6 +13,19 @@ export const usersTable = pgTable("users", {
   name: varchar({ length: 255 }).notNull(),
   age: integer().notNull(),
   email: varchar({ length: 255 }).notNull().unique(),
+});
+
+export const notesTable = pgTable("notes", {
+  id: uuid().primaryKey(),
+  userId: uuid()
+    .references(() => usersTable.id, { onDelete: "cascade" })
+    .notNull(),
+  title: varchar({ length: 255 }).notNull(),
+  content: jsonb().notNull(),
+  createdAt: timestamp().notNull(),
+  updatedAt: timestamp().notNull(),
+  deletedAt: timestamp(),
+  version: integer().default(1).notNull(),
 });
 
 export const todosTable = pgTable("todos", {
