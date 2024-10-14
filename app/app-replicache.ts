@@ -1,7 +1,26 @@
 import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
 import { deleteTodo, getTodo, saveTodo } from "./model/Todo";
+import { getNote, saveNote } from "./model/Note";
 
 export const MUTATORS = {
+  async createNote(tx: WriteTransaction, input: { id: string; title: string }) {
+    await saveNote(tx, {
+      id: input.id,
+      title: input.title,
+      createdAt: new Date().toISOString(),
+      content: { type: "doc", content: [{ type: "paragraph" }] },
+    });
+  },
+  async updateNote(
+    tx: WriteTransaction,
+    input: { id: string; title?: string; content?: any },
+  ) {
+    const note = await getNote(tx, input.id);
+    await saveNote(tx, {
+      ...note,
+      ...input,
+    });
+  },
   async createTodo(tx: WriteTransaction, input: { id: string; title: string }) {
     await saveTodo(tx, {
       id: input.id,
@@ -34,7 +53,7 @@ export const getReplicache = (userId: string) => {
   if (fromCache != null) return fromCache;
   const fresh = new Replicache({
     name: userId,
-    licenseKey: TEST_LICENSE_KEY,
+    licenseKey: import.meta.env.VITE_REPLICACHE_KEY,
     mutators: MUTATORS,
     pullURL: "/replicache/pull",
     pushURL: "/replicache/push",

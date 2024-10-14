@@ -2,7 +2,7 @@ import { useReplicache } from "./ReplicacheProvider";
 import { useLoaderData } from "@remix-run/react";
 import { useSubscribe } from "replicache-react";
 import { getTodos } from "../model/Todo";
-import { clientLoader } from "../routes/_index";
+import { clientLoader } from "../routes/app.route";
 
 export const TodoList = () => {
   const replicache = useReplicache();

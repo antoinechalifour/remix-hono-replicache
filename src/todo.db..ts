@@ -9,8 +9,6 @@ export type Todo = {
   done: boolean;
 };
 
-const incrementVersion = () => sql`${todosTable.version} + 1`;
-
 export const createTodoSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -32,6 +30,8 @@ export const createTodo = (
 export const deleteTodoSchema = z.object({ id: z.string() });
 
 export type DeleteTodo = z.infer<typeof deleteTodoSchema>;
+
+export const incrementVersion = () => sql`${todosTable.version} + 1`;
 
 export const deleteTodo = (
   tx: Transaction,

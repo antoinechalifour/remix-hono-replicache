@@ -1,19 +1,24 @@
 import { StarterKit } from "@tiptap/starter-kit";
 import { EditorProvider } from "@tiptap/react";
+import { JSONContent } from "@tiptap/core/src/types";
 
 const extensions = [StarterKit];
-const content = "<p>Hello World!</p>";
 
-export const NoteEditor = () => {
+export const NoteEditor = ({
+  content,
+  onChange,
+}: {
+  content: JSONContent;
+  onChange(content: JSONContent): void;
+}) => {
   return (
     <EditorProvider
-      onUpdate={(e) => console.log(e.editor.getJSON())}
+      onUpdate={(e) => onChange(e.editor.getJSON())}
       extensions={extensions}
       content={content}
       editorProps={{
         attributes: {
-          class:
-            "prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none",
+          class: "grow p-3 focus:outline-none",
         },
       }}
     ></EditorProvider>

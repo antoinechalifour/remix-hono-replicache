@@ -8,6 +8,13 @@ export default defineConfig(() => {
   return {
     plugins: [
       remix({
+        routes(defineRoutes) {
+          return defineRoutes((route) => {
+            route("/", "routes/app.route.tsx", () => {
+              route("notes/:noteId", "routes/notes.$noteId.route.tsx");
+            });
+          });
+        },
         future: {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,
