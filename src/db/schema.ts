@@ -28,17 +28,6 @@ export const notesTable = pgTable("notes", {
   version: integer().default(1).notNull(),
 });
 
-export const todosTable = pgTable("todos", {
-  id: uuid().primaryKey(),
-  title: varchar().notNull(),
-  done: boolean().default(false).notNull(),
-  userId: uuid()
-    .references(() => usersTable.id, { onDelete: "cascade" })
-    .notNull(),
-  deletedAt: timestamp(),
-  version: integer().default(1).notNull(),
-});
-
 export const replicacheClientGroupsTable = pgTable("replicache_client_groups", {
   id: varchar({ length: 36 }).primaryKey().notNull(),
   userId: uuid()
