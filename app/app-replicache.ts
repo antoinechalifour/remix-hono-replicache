@@ -1,5 +1,4 @@
-import { Replicache, TEST_LICENSE_KEY, WriteTransaction } from "replicache";
-import { deleteTodo, getTodo, saveTodo } from "./model/Todo";
+import { Replicache, WriteTransaction } from "replicache";
 import { getNote, saveNote } from "./model/Note";
 
 export const MUTATORS = {
@@ -19,30 +18,6 @@ export const MUTATORS = {
     await saveNote(tx, {
       ...note,
       ...input,
-    });
-  },
-  async createTodo(tx: WriteTransaction, input: { id: string; title: string }) {
-    await saveTodo(tx, {
-      id: input.id,
-      title: input.title,
-      done: false,
-    });
-  },
-  async deleteTodo(tx: WriteTransaction, input: { id: string }) {
-    await deleteTodo(tx, input.id);
-  },
-  async checkTodo(tx: WriteTransaction, input: { id: string }) {
-    const todo = await getTodo(tx, input.id);
-    await saveTodo(tx, {
-      ...todo,
-      done: true,
-    });
-  },
-  async uncheckTodo(tx: WriteTransaction, input: { id: string }) {
-    const todo = await getTodo(tx, input.id);
-    await saveTodo(tx, {
-      ...todo,
-      done: false,
     });
   },
 };

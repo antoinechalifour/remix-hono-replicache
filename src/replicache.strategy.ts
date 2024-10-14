@@ -11,18 +11,6 @@ import {
 } from "./replicache.db.js";
 import { HTTPException } from "hono/http-exception";
 import {
-  checkTodo,
-  checkTodoSchema,
-  createTodo,
-  createTodoSchema,
-  deleteTodo,
-  deleteTodoSchema,
-  getTodos,
-  getTodosVersion,
-  uncheckTodo,
-  uncheckTodoSchema,
-} from "./todo.db..js";
-import {
   ReplicacheCVR,
   ReplicacheCVRDiff,
   ReplicacheCVREntries,
@@ -119,14 +107,6 @@ export const mutate = (tx: Transaction, userID: string, mutation: Mutation) => {
       return createNote(tx, userID, createNoteSchema.parse(mutation.args));
     case "updateNote":
       return updateNote(tx, userID, updateNoteSchema.parse(mutation.args));
-    case "createTodo":
-      return createTodo(tx, userID, createTodoSchema.parse(mutation.args));
-    case "deleteTodo":
-      return deleteTodo(tx, userID, deleteTodoSchema.parse(mutation.args));
-    case "checkTodo":
-      return checkTodo(tx, userID, checkTodoSchema.parse(mutation.args));
-    case "uncheckTodo":
-      return uncheckTodo(tx, userID, uncheckTodoSchema.parse(mutation.args));
     default:
       console.error("Unhandled mutation", mutation);
       throw new HTTPException(400, { message: "Invalid mutation" });
@@ -211,11 +191,7 @@ export const pull = async (
       console.log("4 > clientGroup", clientGroup);
 
       // 6. Read all id/version pairs from the database that should be in the client view. This query can be any arbitrary function of the DB, including read authorization, paging, etc.
-      const [todosVersions, notesVersion] = await Promise.all([
-        getTodosVersion(tx, userID),
-        getNotesVersion(tx, userID),
-      ]);
-      console.log("6 > todosVersions", todosVersions);
+      const [notesVersion] = await Promise.all([getNotesVersion(tx, userID)]);
       console.log("6 > notesVersion", notesVersion);
 
       // 7: Read all clients in the client group.
@@ -227,7 +203,6 @@ export const pull = async (
 
       // 8. Build nextCVR from entities and clients.
       const nextCVR: ReplicacheCVR = {
-        todos: cvrEntriesFromSearch(todosVersions),
         notes: cvrEntriesFromSearch(notesVersion),
         clients: cvrEntriesFromSearch(clientsVersions),
       };
@@ -244,11 +219,7 @@ export const pull = async (
       }
 
       // 11. Fetch all entities from database that are new or changed between baseCVR and nextCVR
-      const [todos, notes] = await Promise.all([
-        getTodos(tx, diff.todos.puts),
-        getNotes(tx, diff.notes.puts),
-      ]);
-      console.log("11 > Todos", todos);
+      const [notes] = await Promise.all([getNotes(tx, diff.notes.puts)]);
       console.log("11 > Notes", notes);
 
       // 12. let clientChanges = clients that are new or changed since baseCVR
@@ -277,7 +248,6 @@ export const pull = async (
 
       return {
         entities: {
-          todos: { dels: diff.todos.dels, puts: todos },
           notes: { dels: diff.notes.dels, puts: notes },
         },
         clients,
