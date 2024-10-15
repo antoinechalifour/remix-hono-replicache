@@ -1,3 +1,4 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import {
   pull,
@@ -6,7 +7,6 @@ import {
   pushRequestSchema,
 } from "./replicache.strategy.js";
 import { getUsers } from "./users.db.js";
-import { zValidator } from "@hono/zod-validator";
 
 export const replicacheRoute = new Hono();
 

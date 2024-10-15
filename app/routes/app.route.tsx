@@ -1,6 +1,4 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { ClientOnly } from "../components/ClientOnly";
-import { PropsWithChildren } from "react";
 import {
   ClientLoaderFunctionArgs,
   NavLink,
@@ -8,13 +6,16 @@ import {
   useLoaderData,
   useNavigate,
 } from "@remix-run/react";
+import { DateTime } from "luxon";
+import { PropsWithChildren } from "react";
+import { useSubscribe } from "replicache-react";
 import { getReplicache } from "../app-replicache";
+import { ClientOnly } from "../components/ClientOnly";
 import {
   ReplicacheProvider,
   useReplicache,
 } from "../components/ReplicacheProvider";
 import { getNotes } from "../model/Note";
-import { useSubscribe } from "replicache-react";
 
 declare module "@remix-run/server-runtime" {
   export interface AppLoadContext {
@@ -84,7 +85,7 @@ const NotesList = () => {
             >
               <span className="font-bold">{note.title}</span>
               <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate">
-                <span>{note.createdAt}</span>
+                <span>{DateTime.fromISO(note.createdAt).toLocaleString()}</span>
                 <span>{note.title}</span>
               </span>
             </NavLink>

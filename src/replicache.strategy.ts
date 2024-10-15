@@ -1,5 +1,16 @@
-import { db } from "./drizzle.js";
+import { HTTPException } from "hono/http-exception";
+import { PatchOperation, PullResponse } from "replicache";
 import { z } from "zod";
+import { Transaction, VersionSearchResult } from "./db.utils.js";
+import { db } from "./drizzle.js";
+import {
+  createNote,
+  createNoteSchema,
+  getNotes,
+  getNotesVersion,
+  updateNote,
+  updateNoteSchema,
+} from "./notes.db.js";
 import {
   getClient,
   getClientGroup,
@@ -9,22 +20,11 @@ import {
   saveClientGroup,
   saveCvr,
 } from "./replicache.db.js";
-import { HTTPException } from "hono/http-exception";
 import {
   ReplicacheCVR,
   ReplicacheCVRDiff,
   ReplicacheCVREntries,
 } from "./replicache.types.js";
-import { Transaction, VersionSearchResult } from "./db.utils.js";
-import { PatchOperation, PullResponse } from "replicache";
-import {
-  createNote,
-  createNoteSchema,
-  getNotes,
-  getNotesVersion,
-  updateNote,
-  updateNoteSchema,
-} from "./notes.db.js";
 
 const mutationSchema = z.object({
   id: z.number(),

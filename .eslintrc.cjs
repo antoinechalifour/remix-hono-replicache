@@ -71,6 +71,26 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      rules: {
+        "import/order": [
+          "error",
+          {
+            alphabetize: {
+              order: "asc",
+            },
+            groups: [
+              "type",
+              "builtin",
+              "external",
+              "internal",
+              "parent",
+              "sibling",
+              "index",
+              "object",
+            ],
+          },
+        ]
+      }
     },
 
     // Node

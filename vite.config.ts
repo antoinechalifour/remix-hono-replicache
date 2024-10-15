@@ -1,8 +1,8 @@
 import devServer, { defaultOptions } from "@hono/vite-dev-server";
+import adapter from "@hono/vite-dev-server/node";
 import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import adapter from "@hono/vite-dev-server/node";
 
 export default defineConfig(() => {
   return {

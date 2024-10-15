@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react";
-import { raise } from "../utils";
-import { getReplicache, MUTATORS } from "../app-replicache";
 import { Replicache } from "replicache";
+import { getReplicache, MUTATORS } from "../app-replicache";
+import { raise } from "../utils";
 
 const replicacheContext = createContext<Replicache<typeof MUTATORS> | null>(
   null,

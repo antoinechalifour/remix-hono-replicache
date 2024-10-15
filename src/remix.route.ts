@@ -1,8 +1,8 @@
-import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { importDevBuild } from "./dev/server.js";
 import { AppLoadContext, ServerBuild } from "@remix-run/node";
+import { Hono } from "hono";
 import { remix } from "remix-hono/handler";
+import { importDevBuild } from "./dev/server.js";
 import { getUsers } from "./users.db.js";
 
 const mode = process.env.NODE_ENV;

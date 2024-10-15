@@ -1,18 +1,21 @@
+import { JSONContent } from "@tiptap/react";
 import { Replicache, WriteTransaction } from "replicache";
 import { getNote, saveNote } from "./model/Note";
 
 export const MUTATORS = {
   async createNote(tx: WriteTransaction, input: { id: string; title: string }) {
+    const now = new Date().toISOString();
     await saveNote(tx, {
       id: input.id,
       title: input.title,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
       content: { type: "doc", content: [{ type: "paragraph" }] },
     });
   },
   async updateNote(
     tx: WriteTransaction,
-    input: { id: string; title?: string; content?: any },
+    input: { id: string; title?: string; content?: JSONContent },
   ) {
     const note = await getNote(tx, input.id);
     await saveNote(tx, {

@@ -1,10 +1,11 @@
-import { ClientLoaderFunctionArgs, useLoaderData } from "@remix-run/react";
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { getReplicache } from "../app-replicache";
-import { getNote } from "../model/Note";
-import { useReplicache } from "../components/ReplicacheProvider";
+import { ClientLoaderFunctionArgs, useLoaderData } from "@remix-run/react";
+import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
+import { getReplicache } from "../app-replicache";
 import { NoteEditor } from "../components/NoteEditor";
+import { useReplicache } from "../components/ReplicacheProvider";
+import { getNote } from "../model/Note";
 
 export const loader = (args: LoaderFunctionArgs) => {
   return { user: args.context.user };
@@ -29,10 +30,16 @@ export default function NoteDetailRoute() {
   });
 
   return (
-    <div className="flex flex-col gap-2" key={note.id}>
+    <div className="flex flex-col gap-2 grow px-8 py-2" key={note.id}>
+      <header className="text-center text-sm">
+        {DateTime.fromISO(note.updatedAt).toLocaleString(
+          DateTime.DATETIME_FULL,
+        )}
+      </header>
       <input
         type="text"
         defaultValue={note.title}
+        className="focus:outline-none"
         onChange={(e) =>
           replicache.mutate.updateNote({ id: noteId, title: e.target.value })
         }

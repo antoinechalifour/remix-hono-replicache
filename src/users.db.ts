@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { db } from "./drizzle.js";
 import { usersTable } from "./db/schema.js";
+import { db } from "./drizzle.js";
 
 export const createUserSchema = z.object({
   id: z.string(),

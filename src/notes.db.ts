@@ -1,15 +1,17 @@
-import { z } from "zod";
-import { Transaction, VersionSearchResult } from "./db.utils.js";
-import { notesTable } from "./db/schema.js";
+import { JSONContent } from "@tiptap/react";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { z } from "zod";
+import { notesTable } from "./db/schema.js";
+import { Transaction, VersionSearchResult } from "./db.utils.js";
 
 export const incrementVersion = () => sql`${notesTable.version} + 1`;
 
 export type Note = {
   id: string;
   title: string;
-  content: any;
+  content: JSONContent;
   createdAt: string;
+  updatedAt: string;
 };
 
 export const createNoteSchema = z.object({
@@ -88,7 +90,8 @@ export const getNotes = async (
   return results.map((result) => ({
     id: result.id,
     title: result.title,
-    content: result.content,
+    content: result.content as JSONContent,
     createdAt: result.createdAt.toISOString(),
+    updatedAt: result.updatedAt.toISOString(),
   }));
 };

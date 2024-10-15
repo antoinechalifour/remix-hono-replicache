@@ -1,14 +1,14 @@
+import { and, eq } from "drizzle-orm";
 import {
   replicacheClientGroupsTable,
   replicacheClientsTable,
 } from "./db/schema.js";
-import { and, eq } from "drizzle-orm";
+import { Transaction, VersionSearchResult } from "./db.utils.js";
 import {
   ReplicacheClient,
   ReplicacheClientGroup,
   ReplicacheCVR,
 } from "./replicache.types.js";
-import { Transaction, VersionSearchResult } from "./db.utils.js";
 
 export const getClientGroup = async (
   tx: Transaction,

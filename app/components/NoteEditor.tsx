@@ -1,6 +1,6 @@
-import { StarterKit } from "@tiptap/starter-kit";
-import { EditorProvider } from "@tiptap/react";
 import { JSONContent } from "@tiptap/core/src/types";
+import { EditorProvider } from "@tiptap/react";
+import { StarterKit } from "@tiptap/starter-kit";
 
 const extensions = [StarterKit];
 
@@ -18,7 +18,7 @@ export const NoteEditor = ({
       content={content}
       editorProps={{
         attributes: {
-          class: "grow p-3 focus:outline-none",
+          class: "grow focus:outline-none",
         },
       }}
     ></EditorProvider>

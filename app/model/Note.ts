@@ -1,11 +1,13 @@
+import { JSONContent } from "@tiptap/react";
 import { ReadTransaction, WriteTransaction } from "replicache";
 import { raise } from "../utils";
 
 export type Note = {
   id: string;
   title: string;
-  content: any;
+  content: JSONContent;
   createdAt: string;
+  updatedAt: string;
 };
 
 export const saveNote = async (tx: WriteTransaction, note: Note) => {
@@ -20,5 +22,5 @@ export const getNote = async (
   id: string,
 ): Promise<Note> => {
   const note = await tx.get<Note>(`notes/${id}`);
-  return note ?? raise(`Note not found ${id}`);
+  return (note as Note) ?? raise(`Note not found ${id}`);
 };

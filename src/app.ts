@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { usersRoute } from "./users.route.js";
 import { remixRoute } from "./remix.route.js";
 import { replicacheRoute } from "./replicache.route.js";
+import { usersRoute } from "./users.route.js";
 
 const app = new Hono();
 
