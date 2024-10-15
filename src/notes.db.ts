@@ -1,4 +1,5 @@
 import { JSONContent } from "@tiptap/react";
+import { StarterKit } from "@tiptap/starter-kit";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { notesTable } from "./db/schema.js";
@@ -9,6 +10,7 @@ export const incrementVersion = () => sql`${notesTable.version} + 1`;
 export type Note = {
   id: string;
   title: string;
+  previewContent: string;
   content: JSONContent;
   createdAt: string;
   updatedAt: string;
@@ -77,6 +79,19 @@ export const getNotesVersion = async (
   }));
 };
 
+// Function to extract plain text from Tiptap JSON
+const extractPlainTextFromJSON = (node: JSONContent): string => {
+  if (node.type === "text") {
+    return node.text || "";
+  }
+
+  if (node.content && Array.isArray(node.content)) {
+    return node.content.map(extractPlainTextFromJSON).join("");
+  }
+
+  return "";
+};
+
 export const getNotes = async (
   tx: Transaction,
   ids: string[],
@@ -87,11 +102,16 @@ export const getNotes = async (
     .from(notesTable)
     .where(inArray(notesTable.id, ids));
 
-  return results.map((result) => ({
-    id: result.id,
-    title: result.title,
-    content: result.content as JSONContent,
-    createdAt: result.createdAt.toISOString(),
-    updatedAt: result.updatedAt.toISOString(),
-  }));
+  return results.map((result) => {
+    return {
+      id: result.id,
+      title: result.title,
+      content: result.content as JSONContent,
+      previewContent: extractPlainTextFromJSON(
+        result.content as JSONContent,
+      ).slice(0, 300),
+      createdAt: result.createdAt.toISOString(),
+      updatedAt: result.updatedAt.toISOString(),
+    };
+  });
 };

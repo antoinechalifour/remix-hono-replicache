@@ -77,7 +77,7 @@ const NotesList = () => {
             <span className="font-bold line-clamp-1 text-sm">{note.title}</span>
             <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate text-xs">
               <span>{DateTime.fromISO(note.createdAt).toLocaleString()}</span>
-              <span>{note.title}</span>
+              <span>{note.previewContent}</span>
             </span>
           </NavLink>
         </li>

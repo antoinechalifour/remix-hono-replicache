@@ -6,6 +6,7 @@ import { raise } from "../utils";
 export type Note = {
   id: string;
   title: string;
+  previewContent: string;
   content: JSONContent;
   createdAt: string;
   updatedAt: string;
