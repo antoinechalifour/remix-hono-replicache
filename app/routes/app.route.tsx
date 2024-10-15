@@ -89,10 +89,12 @@ const NotesList = () => {
           <li key={note.id}>
             <NavLink
               to={`notes/${note.id}`}
-              className="flex flex-col overflow-hidden"
+              className="flex flex-col overflow-hidden nav-active:bg-gray-100 rounded-md px-4 py-2"
             >
-              <span className="font-bold">{note.title}</span>
-              <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate">
+              <span className="font-bold line-clamp-1 text-sm">
+                {note.title}
+              </span>
+              <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate text-xs">
                 <span>{DateTime.fromISO(note.createdAt).toLocaleString()}</span>
                 <span>{note.title}</span>
               </span>
