@@ -1,3 +1,4 @@
+import typography from "@tailwindcss/typography";
 import { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
@@ -20,6 +21,7 @@ export default {
     },
   },
   plugins: [
+    typography,
     plugin(({ addVariant }) => {
       addVariant("children", "& > *");
       addVariant("nav-active", "&.active");

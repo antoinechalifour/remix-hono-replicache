@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { ClientLoaderFunctionArgs, useLoaderData } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
+import { z } from "zod";
 import { getReplicache } from "../app-replicache";
 import { NoteEditor } from "../components/NoteEditor";
 import { useReplicache } from "../components/ReplicacheProvider";
@@ -13,7 +14,7 @@ export const loader = (args: LoaderFunctionArgs) => {
 
 export const clientLoader = async (args: ClientLoaderFunctionArgs) => {
   const loaderData = await args.serverLoader<typeof loader>();
-  const noteId = args.params.noteId;
+  const noteId = z.string().parse(args.params.noteId);
   const replicache = getReplicache(loaderData.user.id);
   const defaultNote = await replicache.query((tx) => getNote(tx, noteId));
   return { ...loaderData, noteId, defaultNote };
@@ -39,7 +40,7 @@ export default function NoteDetailRoute() {
       <input
         type="text"
         defaultValue={note.title}
-        className="focus:outline-none"
+        className="focus:outline-none text-5xl font-extrabold mb-4"
         onChange={(e) =>
           replicache.mutate.updateNote({ id: noteId, title: e.target.value })
         }

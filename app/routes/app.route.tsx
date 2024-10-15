@@ -7,6 +7,7 @@ import {
   useNavigate,
   redirect,
 } from "@remix-run/react";
+import { PenSquareIcon, TrashIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
 import { useSubscribe } from "replicache-react";
@@ -64,45 +65,68 @@ const NotesList = () => {
   const { defaultNotes } = useLoaderData<typeof clientLoader>();
   const replicache = useReplicache();
   const notes = useSubscribe(replicache, getNotes, { default: defaultNotes });
+
+  return (
+    <ol className="p-3 border-t border-slate-200">
+      {notes.map((note) => (
+        <li key={note.id}>
+          <NavLink
+            to={`notes/${note.id}`}
+            className="flex flex-col overflow-hidden nav-active:bg-gray-100 rounded-md px-4 py-2"
+          >
+            <span className="font-bold line-clamp-1 text-sm">{note.title}</span>
+            <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate text-xs">
+              <span>{DateTime.fromISO(note.createdAt).toLocaleString()}</span>
+              <span>{note.title}</span>
+            </span>
+          </NavLink>
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+const CreateNoteButton = () => {
+  const replicache = useReplicache();
   const navigate = useNavigate();
 
   return (
-    <section className="grow max-w-[280px] bg-white border-r border-slate-200 h-screen">
-      <div className="p-1.5">
-        <button
-          type="button"
-          className="p-1.5 block w-full text-center rounded bg-slate-200 font-semibold"
-          onClick={async () => {
-            const noteId = crypto.randomUUID();
-            await replicache.mutate.createNote({
-              id: noteId,
-              title: "Untitled note...",
-            });
-            navigate(`/notes/${noteId}`);
-          }}
-        >
-          Create a note
-        </button>
-      </div>
-      <ol className="p-3 border-t border-slate-200">
-        {notes.map((note) => (
-          <li key={note.id}>
-            <NavLink
-              to={`notes/${note.id}`}
-              className="flex flex-col overflow-hidden nav-active:bg-gray-100 rounded-md px-4 py-2"
-            >
-              <span className="font-bold line-clamp-1 text-sm">
-                {note.title}
-              </span>
-              <span className="line-clamp-1 flex gap-2 whitespace-nowrap truncate text-xs">
-                <span>{DateTime.fromISO(note.createdAt).toLocaleString()}</span>
-                <span>{note.title}</span>
-              </span>
-            </NavLink>
-          </li>
-        ))}
-      </ol>
-    </section>
+    <button
+      type="button"
+      className="-m-2 p-2 block bg-transparent transition-colors rounded hover:bg-slate-200"
+      onClick={async () => {
+        const noteId = crypto.randomUUID();
+        await replicache.mutate.createNote({
+          id: noteId,
+          title: "Untitled note...",
+        });
+        navigate(`/notes/${noteId}`);
+      }}
+    >
+      <PenSquareIcon className="size-4" />
+    </button>
+  );
+};
+
+const DeleteNoteButton = () => {
+  const replicache = useReplicache();
+  const navigate = useNavigate();
+
+  return (
+    <button
+      type="button"
+      className="-m-2 p-2 block bg-transparent transition-colors rounded hover:bg-slate-200"
+      onClick={async () => {
+        const noteId = crypto.randomUUID();
+        await replicache.mutate.createNote({
+          id: noteId,
+          title: "Untitled note...",
+        });
+        navigate(`/notes/${noteId}`);
+      }}
+    >
+      <TrashIcon className="size-4" />
+    </button>
   );
 };
 
@@ -111,10 +135,22 @@ export default function Index() {
     <ClientOnly>
       {() => (
         <App>
-          <main className="flex items-start min-h-screen">
-            <NotesList />
-            <Outlet />
-          </main>
+          <div className="flex items-start min-h-screen">
+            <nav className="grow shrink-0 max-w-[350px] bg-white h-screen sticky top-0 overflow-hidden flex flex-col">
+              <header className="bg-gray-100 sticky top-0 z-10 p-6 flex justify-end border-slate-300 border-r-2">
+                <DeleteNoteButton />
+              </header>
+              <div className="grow border-r-2 border-slate-200 overflow-y-auto">
+                <NotesList />
+              </div>
+            </nav>
+            <main className="grow flex flex-col min-h-screen">
+              <header className="bg-gray-100 sticky top-0 z-10 p-6">
+                <CreateNoteButton />
+              </header>
+              <Outlet />
+            </main>
+          </div>
         </App>
       )}
     </ClientOnly>

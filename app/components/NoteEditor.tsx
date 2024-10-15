@@ -18,7 +18,7 @@ export const NoteEditor = ({
       content={content}
       editorProps={{
         attributes: {
-          class: "grow focus:outline-none",
+          class: "grow focus:outline-none prose prose-lg",
         },
       }}
     ></EditorProvider>
