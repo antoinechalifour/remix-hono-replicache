@@ -3,11 +3,11 @@ import {
   ClientLoaderFunctionArgs,
   NavLink,
   Outlet,
+  redirect,
   useLoaderData,
   useNavigate,
-  redirect,
 } from "@remix-run/react";
-import { PenSquareIcon, TrashIcon } from "lucide-react";
+import { TrashIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
 import { useSubscribe } from "replicache-react";
@@ -86,28 +86,6 @@ const NotesList = () => {
   );
 };
 
-const CreateNoteButton = () => {
-  const replicache = useReplicache();
-  const navigate = useNavigate();
-
-  return (
-    <button
-      type="button"
-      className="-m-2 p-2 block bg-transparent transition-colors rounded hover:bg-slate-200"
-      onClick={async () => {
-        const noteId = crypto.randomUUID();
-        await replicache.mutate.createNote({
-          id: noteId,
-          title: "Untitled note...",
-        });
-        navigate(`/notes/${noteId}`);
-      }}
-    >
-      <PenSquareIcon className="size-4" />
-    </button>
-  );
-};
-
 const DeleteNoteButton = () => {
   const replicache = useReplicache();
   const navigate = useNavigate();
@@ -144,12 +122,7 @@ export default function Index() {
                 <NotesList />
               </div>
             </nav>
-            <main className="grow flex flex-col min-h-screen">
-              <header className="bg-gray-100 sticky top-0 z-10 p-6">
-                <CreateNoteButton />
-              </header>
-              <Outlet />
-            </main>
+            <Outlet />
           </div>
         </App>
       )}
