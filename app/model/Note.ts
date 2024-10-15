@@ -1,4 +1,5 @@
 import { JSONContent } from "@tiptap/react";
+import { DateTime } from "luxon";
 import { ReadTransaction, WriteTransaction } from "replicache";
 import { raise } from "../utils";
 
@@ -14,8 +15,14 @@ export const saveNote = async (tx: WriteTransaction, note: Note) => {
   await tx.set(`notes/${note.id}`, note);
 };
 
-export const getNotes = (tx: ReadTransaction) =>
-  tx.scan<Note>({ prefix: "notes/" }).values().toArray();
+export const getNotes = async (tx: ReadTransaction) => {
+  const notes = await tx.scan<Note>({ prefix: "notes/" }).values().toArray();
+  return notes.sort(
+    (a, b) =>
+      DateTime.fromISO(b.createdAt).valueOf() -
+      DateTime.fromISO(a.createdAt).valueOf(),
+  );
+};
 
 export const getNote = async (
   tx: ReadTransaction,

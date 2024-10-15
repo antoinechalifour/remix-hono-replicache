@@ -1,10 +1,11 @@
-import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import {
   ClientLoaderFunctionArgs,
   NavLink,
   Outlet,
   useLoaderData,
   useNavigate,
+  redirect,
 } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { PropsWithChildren } from "react";
@@ -41,6 +42,13 @@ export const clientLoader = async (args: ClientLoaderFunctionArgs) => {
   const loaderData = await args.serverLoader<typeof loader>();
   const replicache = getReplicache(loaderData.user.id);
   const defaultNotes = await replicache.query(getNotes);
+
+  if (new URL(args.request.url).pathname === "/") {
+    if (defaultNotes.length > 0) {
+      throw redirect(`/notes/${defaultNotes[0].id}`);
+    }
+  }
+
   return { ...loaderData, defaultNotes };
 };
 
