@@ -13,11 +13,11 @@ import {
 import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
 import { z } from "zod";
-import { getReplicache } from "../app-replicache";
-import { CreateNoteButton } from "../components/CreateNoteButton";
-import { NoteEditor } from "../components/NoteEditor";
-import { useReplicache } from "../components/ReplicacheProvider";
-import { getNote, Note } from "../model/Note";
+import { getReplicache } from "../../app-replicache";
+import { useReplicache } from "../../components/ReplicacheProvider";
+import { getNote } from "../../model/Note";
+import { CreateNoteButton } from "./components/CreateNoteButton";
+import { NoteEditor } from "./components/NoteEditor";
 
 export const loader = (args: LoaderFunctionArgs) => {
   return { user: args.context.user };
@@ -38,6 +38,7 @@ const EditorHeader = () => {
   return (
     <header className="bg-gray-100 sticky top-0 z-10 p-6 flex justify-between items-center">
       <CreateNoteButton />
+
       <div className="-m-2 flex items-center gap-1">
         <button
           type="button"

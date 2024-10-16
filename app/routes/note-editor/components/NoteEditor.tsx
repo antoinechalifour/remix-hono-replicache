@@ -25,6 +25,6 @@ export const NoteEditor = ({
           class: "grow max-w-none focus:outline-none prose prose-lg px-8 py-2",
         },
       }}
-    ></EditorProvider>
+    />
   );
 };

@@ -10,8 +10,11 @@ export default defineConfig(() => {
       remix({
         routes(defineRoutes) {
           return defineRoutes((route) => {
-            route("/", "routes/app.route.tsx", () => {
-              route("notes/:noteId", "routes/notes.$noteId.route.tsx");
+            route("/", "routes/app/app.route.tsx", () => {
+              route(
+                "notes/:noteId",
+                "routes/app/note-editor/note-editor.route.tsx",
+              );
             });
           });
         },
