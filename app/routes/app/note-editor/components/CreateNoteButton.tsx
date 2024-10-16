@@ -1,6 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import { PenSquareIcon } from "lucide-react";
-import { useReplicache } from "../../../components/ReplicacheProvider";
+import { useReplicache } from "../../../../components/ReplicacheProvider";
 
 export const CreateNoteButton = () => {
   const replicache = useReplicache();

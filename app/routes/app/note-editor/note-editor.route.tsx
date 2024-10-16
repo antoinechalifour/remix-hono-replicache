@@ -13,9 +13,9 @@ import {
 import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
 import { z } from "zod";
-import { getReplicache } from "../../app-replicache";
-import { useReplicache } from "../../components/ReplicacheProvider";
-import { getNote } from "../../model/Note";
+import { getReplicache } from "../../../app-replicache";
+import { useReplicache } from "../../../components/ReplicacheProvider";
+import { getNote } from "../../../model/Note";
 import { CreateNoteButton } from "./components/CreateNoteButton";
 import { NoteEditor } from "./components/NoteEditor";
 
