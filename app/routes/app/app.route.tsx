@@ -9,17 +9,8 @@ import { getReplicache } from "../../app-replicache";
 import { ClientOnly } from "../../components/ClientOnly";
 import { ReplicacheProvider } from "../../components/ReplicacheProvider";
 import { getNotes } from "../../model/Note";
-import { DeleteNoteButton } from "../components/DeleteNoteButton";
-import { NotesList } from "../components/NotesList";
-
-declare module "@remix-run/server-runtime" {
-  export interface AppLoadContext {
-    user: {
-      id: string;
-      name: string;
-    };
-  }
-}
+import { DeleteNoteButton } from "./components/DeleteNoteButton";
+import { NotesList } from "./components/NotesList";
 
 export const meta: MetaFunction = () => {
   return [{ title: "Notes" }];

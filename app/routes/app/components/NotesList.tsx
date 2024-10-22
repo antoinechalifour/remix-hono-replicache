@@ -1,9 +1,9 @@
 import { NavLink, useLoaderData } from "@remix-run/react";
 import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
-import { useReplicache } from "../../components/ReplicacheProvider";
-import { getNotes } from "../../model/Note";
-import { clientLoader } from "../app/app.route";
+import { useReplicache } from "../../../components/ReplicacheProvider";
+import { getNotes } from "../../../model/Note";
+import { clientLoader } from "../app.route";
 
 export const NotesList = () => {
   const { defaultNotes } = useLoaderData<typeof clientLoader>();

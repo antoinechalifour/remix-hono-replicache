@@ -10,6 +10,7 @@ export const MUTATORS = {
       title: input.title,
       createdAt: now,
       updatedAt: now,
+      previewContent: "",
       content: { type: "doc", content: [{ type: "paragraph" }] },
     });
   },

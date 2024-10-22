@@ -13,7 +13,7 @@ export default defineConfig(() => {
             route("/", "routes/app/app.route.tsx", () => {
               route(
                 "notes/:noteId",
-                "routes/app/note-editor/note-editor.route.tsx",
+                "routes/app.note-editor/note-editor.route.tsx",
               );
             });
           });

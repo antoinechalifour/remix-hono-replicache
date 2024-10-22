@@ -13,9 +13,9 @@ import {
 import { DateTime } from "luxon";
 import { useSubscribe } from "replicache-react";
 import { z } from "zod";
-import { getReplicache } from "../../../app-replicache";
-import { useReplicache } from "../../../components/ReplicacheProvider";
-import { getNote } from "../../../model/Note";
+import { getReplicache } from "../../app-replicache";
+import { useReplicache } from "../../components/ReplicacheProvider";
+import { getNote, getNoteOrNull } from "../../model/Note";
 import { CreateNoteButton } from "./components/CreateNoteButton";
 import { NoteEditor } from "./components/NoteEditor";
 
@@ -27,7 +27,12 @@ export const clientLoader = async (args: ClientLoaderFunctionArgs) => {
   const loaderData = await args.serverLoader<typeof loader>();
   const noteId = z.string().parse(args.params.noteId);
   const replicache = getReplicache(loaderData.user.id);
-  const defaultNote = await replicache.query((tx) => getNote(tx, noteId));
+  let defaultNote = await replicache.query((tx) => getNoteOrNull(tx, noteId));
+  if (defaultNote == null) {
+    await replicache.pull();
+    defaultNote = await replicache.query((tx) => getNote(tx, noteId));
+  }
+
   return { ...loaderData, noteId, defaultNote };
 };
 

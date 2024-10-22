@@ -25,10 +25,18 @@ export const getNotes = async (tx: ReadTransaction) => {
   );
 };
 
+export const getNoteOrNull = async (
+  tx: ReadTransaction,
+  id: string,
+): Promise<Note | null> => {
+  const note = await tx.get<Note>(`notes/${id}`);
+  return (note as Note) ?? null;
+};
+
 export const getNote = async (
   tx: ReadTransaction,
   id: string,
 ): Promise<Note> => {
-  const note = await tx.get<Note>(`notes/${id}`);
+  const note = await getNoteOrNull(tx, id);
   return (note as Note) ?? raise(`Note not found ${id}`);
 };

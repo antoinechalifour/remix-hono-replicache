@@ -1,7 +1,6 @@
 {
-  "include": ["./**/*.ts",
-    "types/app.d.ts"
-  ],
+  "include": [
+    "types/app.d.ts", "app/**/*"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@remix-run/node", "vite/client"],
@@ -16,7 +15,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-
     // Vite takes care of building everything, not tsc.
     "noEmit": true
   }

@@ -1,15 +1,15 @@
 import { useNavigate } from "@remix-run/react";
-import { PenSquareIcon } from "lucide-react";
-import { useReplicache } from "../../../../components/ReplicacheProvider";
+import { TrashIcon } from "lucide-react";
+import { useReplicache } from "../../../components/ReplicacheProvider";
 
-export const CreateNoteButton = () => {
+export const DeleteNoteButton = () => {
   const replicache = useReplicache();
   const navigate = useNavigate();
 
   return (
     <button
       type="button"
-      className="-m-2 p-2 bg-transparent transition-colors rounded hover:bg-gray-200"
+      className="-m-2 p-2 block bg-transparent transition-colors rounded hover:bg-slate-200"
       onClick={async () => {
         const noteId = crypto.randomUUID();
         await replicache.mutate.createNote({
@@ -19,7 +19,7 @@ export const CreateNoteButton = () => {
         navigate(`/notes/${noteId}`);
       }}
     >
-      <PenSquareIcon className="size-4" />
+      <TrashIcon className="size-4" />
     </button>
   );
 };
