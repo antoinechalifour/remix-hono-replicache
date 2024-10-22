@@ -8,7 +8,8 @@ import {
 import { getReplicache } from "../../app-replicache";
 import { ClientOnly } from "../../components/ClientOnly";
 import { ReplicacheProvider } from "../../components/ReplicacheProvider";
-import { getNotes, Note } from "../../model/Note";
+import { getNotes } from "../../model/Note";
+import { requireUser } from "../../utils";
 import { DeleteNoteButton } from "./components/DeleteNoteButton";
 import { NotesList } from "./components/NotesList";
 
@@ -17,7 +18,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = (args: LoaderFunctionArgs) => {
-  return { user: args.context.user };
+  return { user: requireUser(args) };
 };
 
 export const clientLoader = async (args: ClientLoaderFunctionArgs) => {

@@ -16,11 +16,12 @@ import { z } from "zod";
 import { getReplicache } from "../../app-replicache";
 import { useReplicache } from "../../components/ReplicacheProvider";
 import { getNote, getNoteOrNull } from "../../model/Note";
+import { requireUser } from "../../utils";
 import { CreateNoteButton } from "./components/CreateNoteButton";
 import { NoteEditor } from "./components/NoteEditor";
 
 export const loader = (args: LoaderFunctionArgs) => {
-  return { user: args.context.user };
+  return { user: requireUser(args) };
 };
 
 export const clientLoader = async (args: ClientLoaderFunctionArgs) => {

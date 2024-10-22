@@ -173,78 +173,78 @@ export const pull = async (
   userID: string,
   pull: PullRequest,
 ): Promise<PullResponse> => {
-  console.log("------------------------------------------------------");
-  console.log("PULL");
+  // console.log("------------------------------------------------------");
+  // console.log("PULL");
   // 1. let prevCVR = getCVR(body.cookie.cvrID)
   const prevCVR = pull.cookie ? await getCvr(pull.cookie.cvrID) : undefined;
-  console.log("1 > prevCVR", prevCVR);
+  // console.log("1 > prevCVR", prevCVR);
   // 2. let baseCVR = prevCVR or default
   const baseCVR: ReplicacheCVR = prevCVR ?? {};
-  console.log("2 > baseCVR", baseCVR);
+  // console.log("2 > baseCVR", baseCVR);
 
-  console.log("3 > Begin transaction");
+  // console.log("3 > Begin transaction");
   // 3. Begin transaction
   const result = await db.transaction(
     async (tx) => {
       // 4. getClientGroup(body.clientGroupID), or default
       const clientGroup = await getClientGroup(tx, pull.clientGroupID, userID);
-      console.log("4 > clientGroup", clientGroup);
+      // console.log("4 > clientGroup", clientGroup);
 
       // 6. Read all id/version pairs from the database that should be in the client view. This query can be any arbitrary function of the DB, including read authorization, paging, etc.
       const [notesVersion] = await Promise.all([getNotesVersion(tx, userID)]);
-      console.log("6 > notesVersion", notesVersion);
+      // console.log("6 > notesVersion", notesVersion);
 
       // 7: Read all clients in the client group.
       const clientsVersions = await getClientVersionOfClientGroup(
         tx,
         pull.clientGroupID,
       );
-      console.log("7 > clientsVersions", clientsVersions);
+      // console.log("7 > clientsVersions", clientsVersions);
 
       // 8. Build nextCVR from entities and clients.
       const nextCVR: ReplicacheCVR = {
         notes: cvrEntriesFromSearch(notesVersion),
         clients: cvrEntriesFromSearch(clientsVersions),
       };
-      console.log("8 > nextCVR", nextCVR);
+      // console.log("8 > nextCVR", nextCVR);
 
       // 9. Calculate the difference between baseCVR and nextCVR
       const diff = diffCVR(baseCVR, nextCVR);
-      console.log("9 > Diff", diff);
+      // console.log("9 > Diff", diff);
 
       // 10. If prevCVR was found and two CVRs are identical then exit this transaction and return a no-op PullResopnse to client:
       if (prevCVR && isCVRDiffEmpty(diff)) {
-        console.log("10 > Empty diff", diff);
+        // console.log("10 > Empty diff", diff);
         return null;
       }
 
       // 11. Fetch all entities from database that are new or changed between baseCVR and nextCVR
       const [notes] = await Promise.all([getNotes(tx, diff.notes.puts)]);
-      console.log("11 > Notes", notes);
+      // console.log("11 > Notes", notes);
 
       // 12. let clientChanges = clients that are new or changed since baseCVR
       const clients: ReplicacheCVREntries = {};
       for (const clientID of diff.clients.puts) {
         clients[clientID] = nextCVR.clients[clientID];
       }
-      console.log("12 > clients", clients);
+      // console.log("12 > clients", clients);
 
       // 13. let nextCVRVersion = Math.max(pull.cookie?.order ?? 0, clientGroup.cvrVersion) + 1
       const baseCVRVersion = pull.cookie?.order ?? 0;
       const nextCVRVersion =
         Math.max(baseCVRVersion, clientGroup.cvrVersion) + 1;
-      console.log(
-        "13 > base / next cvr version",
-        baseCVRVersion,
-        nextCVRVersion,
-      );
+      // console.log(
+      //   "13 > base / next cvr version",
+      //   baseCVRVersion,
+      //   nextCVRVersion,
+      // );
 
       // 14. putClientGroup():
       await saveClientGroup(tx, {
         ...clientGroup,
         cvrVersion: nextCVRVersion,
       });
-      console.log("14 > Saved client group");
+      // console.log("14 > Saved client group");
 
       return {
         entities: {
@@ -259,7 +259,7 @@ export const pull = async (
       isolationLevel: "repeatable read",
     },
   ); // 15. Commit
-  console.log("15 > Transaction commited");
+  // console.log("15 > Transaction commited");
 
   if (result === null) {
     return {
@@ -276,7 +276,7 @@ export const pull = async (
 
   // 17. putCVR(nextCVR)
   await saveCvr(cvrID, nextCVR);
-  console.log("17 > Updated cvr", nextCVR);
+  // console.log("17 > Updated cvr", nextCVR);
 
   /* 18.
   Create a PullResponse with:
@@ -310,7 +310,7 @@ export const pull = async (
 
   const lastMutationIDChanges = clients;
 
-  console.log("------------------------------------------------------");
+  // console.log("------------------------------------------------------");
 
   return {
     cookie,

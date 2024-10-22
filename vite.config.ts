@@ -16,6 +16,7 @@ export default defineConfig(() => {
                 "routes/app.note-editor/note-editor.route.tsx",
               );
             });
+            route("/login", "routes/login/login.route.tsx");
           });
         },
         future: {

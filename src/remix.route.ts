@@ -1,19 +1,22 @@
 import { serveStatic } from "@hono/node-server/serve-static";
-import { AppLoadContext, ServerBuild } from "@remix-run/node";
+import { ServerBuild } from "@remix-run/node";
 import { Hono } from "hono";
+import { setCookie, setSignedCookie } from "hono/cookie";
 import { remix } from "remix-hono/handler";
 import { importDevBuild } from "./dev/server.js";
-import { getUsers } from "./users.db.js";
+import { authenticate } from "./users.db.js";
 
 const mode = process.env.NODE_ENV;
 const isDev = mode === "development";
 
-export const remixRoute = new Hono();
+export const remixRoute = new Hono<{
+  Variables: { user?: { id: string; name: string } };
+}>();
 
 remixRoute
   .use("/*", serveStatic({ root: "./build/client" }))
   .use("*", async (c, next) => {
-    const users = await getUsers();
+    const user = c.get("user");
     const build = isDev
       ? ((await importDevBuild()) as unknown as ServerBuild)
       : // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -25,9 +28,7 @@ remixRoute
       build,
       mode: mode === "production" ? "production" : "development",
       getLoadContext() {
-        return {
-          user: users[0],
-        } satisfies AppLoadContext;
+        return { user };
       },
     })(c, next);
   });

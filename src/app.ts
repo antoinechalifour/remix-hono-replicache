@@ -1,20 +1,49 @@
+import { zValidator } from "@hono/zod-validator";
 import { generateJSON } from "@tiptap/html";
 import { StarterKit } from "@tiptap/starter-kit";
 import { Hono } from "hono";
+import { getCookie, getSignedCookie, setSignedCookie } from "hono/cookie";
 import { DateTime } from "luxon";
 import { default as wiki } from "wikipedia";
+import { z } from "zod";
 import { notesTable } from "./db/schema.js";
 import { db } from "./drizzle.js";
 import { remixRoute } from "./remix.route.js";
 import { replicacheRoute } from "./replicache.route.js";
-import { getUsers } from "./users.db.js";
+import { authenticate, getUserOrNull, getUsers } from "./users.db.js";
 import { usersRoute } from "./users.route.js";
 
-const app = new Hono();
+const app = new Hono<{
+  Variables: { user: { id: string; name: string } };
+}>();
 
 app
+  .use("*", async (c, next) => {
+    const userId = await getSignedCookie(c, "the-secret", "userId");
+    if (typeof userId === "string") {
+      const user = await getUserOrNull(userId);
+      c.set("user", user);
+    }
+
+    await next();
+  })
+  .post(
+    "/login",
+    zValidator("form", z.object({ email: z.string() })),
+    async (c) => {
+      const form = c.req.valid("form");
+      try {
+        const userId = await authenticate(form.email);
+        await setSignedCookie(c, "userId", userId, "the-secret");
+        return c.redirect("/");
+      } catch (err) {
+        return c.redirect("/login");
+      }
+    },
+  )
   .route("/users", usersRoute)
   .route("/replicache", replicacheRoute)
+
   .get("/seed", async (c) => {
     const [user] = await getUsers();
 
