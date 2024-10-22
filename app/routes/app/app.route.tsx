@@ -8,7 +8,7 @@ import {
 import { getReplicache } from "../../app-replicache";
 import { ClientOnly } from "../../components/ClientOnly";
 import { ReplicacheProvider } from "../../components/ReplicacheProvider";
-import { getNotes } from "../../model/Note";
+import { getNotes, Note } from "../../model/Note";
 import { DeleteNoteButton } from "./components/DeleteNoteButton";
 import { NotesList } from "./components/NotesList";
 

@@ -1,6 +1,5 @@
 {
-  "include": [
-    "types/app.d.ts", "app/**/*"],
+  "include": ["types/app.d.ts", "**/*"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@remix-run/node", "vite/client"],

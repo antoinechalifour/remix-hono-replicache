@@ -16,9 +16,9 @@ export const saveNote = async (tx: WriteTransaction, note: Note) => {
   await tx.set(`notes/${note.id}`, note);
 };
 
-export const getNotes = async (tx: ReadTransaction) => {
+export const getNotes = async (tx: ReadTransaction): Promise<Note[]> => {
   const notes = await tx.scan<Note>({ prefix: "notes/" }).values().toArray();
-  return notes.sort(
+  return (notes as Note[]).sort(
     (a, b) =>
       DateTime.fromISO(b.createdAt).valueOf() -
       DateTime.fromISO(a.createdAt).valueOf(),
