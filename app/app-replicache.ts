@@ -37,6 +37,10 @@ export const getReplicache = (userId: string) => {
     pullURL: "/replicache/pull",
     pushURL: "/replicache/push",
   });
+  fresh.getAuth = async () => {
+    window.location.reload();
+    return null;
+  };
   cache.set(userId, fresh);
   return fresh;
 };

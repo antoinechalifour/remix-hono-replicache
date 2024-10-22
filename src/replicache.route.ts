@@ -8,9 +8,19 @@ import {
 } from "./replicache.strategy.js";
 import { getUsers } from "./users.db.js";
 
-export const replicacheRoute = new Hono();
+export const replicacheRoute = new Hono<{
+  Variables: { user?: { id: string; name: string } };
+}>();
 
 replicacheRoute
+  .use(async (c, next) => {
+    const user = c.get("user");
+    if (user == null) {
+      c.status(401);
+      return c.text("Unauthorized");
+    }
+    await next();
+  })
   .post("/push", zValidator("json", pushRequestSchema), async (c) => {
     const [user] = await getUsers();
     await push(user.id, c.req.valid("json"));
